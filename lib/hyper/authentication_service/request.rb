@@ -8,7 +8,6 @@ module Hyper
       end
 
       def run(user)
-        user.fetch(:email) && user.fetch(:authentication_token)
         @response = connection.post(AUTHENTICATION_PATH, nil, headers_for(user))
       rescue KeyError => e
         raise InvalidUserError, e.message
@@ -22,8 +21,8 @@ module Hyper
 
       def headers_for(user)
         {
-          'X-Entity-Token' => user[:authentication_token],
-          'X-Entity-Email' => user[:email]
+          'X-Entity-Token' => user.fetch(:authentication_token),
+          'X-Entity-Email' => user.fetch(:email)
         }
       end
     end
