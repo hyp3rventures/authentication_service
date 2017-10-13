@@ -19,6 +19,12 @@ require 'hyper/authentication_service'
 
 user_hash = { :email => 'user@example.com', :authentication_token => 'bzzz' }
 service = Hyper::AuthenticationService::Request.new
+
+## You may also configure your own base url with a block
+service = Hyper::AuthenticationService::Request.new do |config|
+  config.authentication_base = 'http://myurl.com'
+end
+
 service.run(user_hash)
 authenticated_user = service.user
 ```

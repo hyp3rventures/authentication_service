@@ -1,8 +1,8 @@
 module Hyper
   module AuthenticationService
     class Connection
-      def self.new
-        Faraday.new(AUTHENTICATION_BASE)
+      def self.build(authentication_base)
+        Faraday.new(authentication_base)
       end
     end
   end

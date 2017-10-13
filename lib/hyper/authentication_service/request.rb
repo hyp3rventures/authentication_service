@@ -2,9 +2,15 @@ module Hyper
   module AuthenticationService
     class Request
       attr_reader :connection, :response
+      attr_writer :authentication_base
 
       def initialize
-        @connection = Connection.new
+        yield(self) if block_given?
+        @connection = Connection.build(authentication_base)
+      end
+
+      def authentication_base
+        @authentication_base ||= AUTHENTICATION_BASE
       end
 
       def run(user)
