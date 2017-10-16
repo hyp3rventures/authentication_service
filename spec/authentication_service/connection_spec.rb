@@ -1,9 +1,9 @@
 require 'spec_helper'
 
 RSpec.describe Hyper::AuthenticationService::Connection do
-  describe '.build' do
+  describe '.new' do
     let(:url) { 'https://example.com' }
-    subject { described_class.build(url) }
+    subject { described_class.new(url) }
 
     it { is_expected.to be_a(Faraday::Connection) }
   end

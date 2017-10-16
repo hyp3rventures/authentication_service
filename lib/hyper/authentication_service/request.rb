@@ -1,20 +1,16 @@
 module Hyper
   module AuthenticationService
     class Request
-      attr_reader :connection, :response
-      attr_writer :authentication_base
+      attr_reader :connection, :response, :config
 
       def initialize
-        yield(self) if block_given?
-        @connection = Connection.build(authentication_base)
-      end
-
-      def authentication_base
-        @authentication_base ||= AUTHENTICATION_BASE
+        @config = Config.new
+        yield config if block_given?
+        @connection = Connection.new(config.base)
       end
 
       def run(user)
-        @response = connection.post(AUTHENTICATION_PATH, nil, headers_for(user))
+        @response = connection.post(config.path, nil, headers_for(user))
       rescue KeyError => e
         raise InvalidUserError, e.message
       end

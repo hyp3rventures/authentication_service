@@ -4,9 +4,6 @@ Use this when you have an application that needs a full, authenticated user obje
 
 ## Usage
 
-### ENV
-Add `AUTHENTICATION_BASE` as an environment variable, e.g. 'https://app.hyp3r.co'
-
 ### Gemfile
 `gem 'hyper-authentication_service', git: 'git@github.com:hyp3rventures/authentication_service'`
 
@@ -18,11 +15,12 @@ Add `AUTHENTICATION_BASE` as an environment variable, e.g. 'https://app.hyp3r.co
 require 'hyper/authentication_service'
 
 user_hash = { :email => 'user@example.com', :authentication_token => 'bzzz' }
-service = Hyper::AuthenticationService::Request.new
+service = Hyper::AuthenticationService.new
 
-## You may also configure your own base url with a block
-service = Hyper::AuthenticationService::Request.new do |config|
-  config.authentication_base = 'http://myurl.com'
+## You may also configure your own base url and path with a block
+service = Hyper::AuthenticationService.new do |config|
+  config.base = 'http://myurl.com'
+  config.path = '/api/orders/66/execute'
 end
 
 service.run(user_hash)
