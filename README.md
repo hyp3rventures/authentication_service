@@ -23,8 +23,8 @@ service = Hyper::AuthenticationService.new do |config|
   config.path = '/api/orders/66/execute'
 end
 
-service.run(user_hash)
-authenticated_user = service.user
+response = service.run(user_hash)
+authenticated_user = JSON.parse(response.body)
 ```
 
 You also have access to the response object via `Request#response`.

@@ -17,20 +17,23 @@ RSpec.describe Hyper::AuthenticationService::Request do
   end
 
   describe 'initialization' do
+    before do
+      allow(subject).to receive(:config).and_return(config)
+    end
     context 'with a block' do
       let(:url) { 'http://example.com' }
-      let(:config_block) { Proc.new { |config| config.base = url } }
+      let(:config_block) { Proc.new { |c| c.base = url } }
 
       it 'sets the url base to the given url' do
         instance = described_class.new(&config_block)
-        expect(instance.config.base).to eq('http://example.com')
+        expect(instance.send(:config).base).to eq(url)
       end
     end
 
     context 'without a block' do
       it 'sets the url base to a default value' do
         instance = described_class.new
-        expect(instance.config.base).to eq(Hyper::AuthenticationService::Config::AUTHENTICATION_BASE)
+        expect(instance.send(:config).base).to eq(Hyper::AuthenticationService::Config::AUTHENTICATION_BASE)
       end
     end
   end
@@ -39,35 +42,6 @@ RSpec.describe Hyper::AuthenticationService::Request do
     it { is_expected.to respond_to(:run) }
 
     context 'with well-formed user object' do
-      it 'makes a request to the authentication url' do
-        subject.run(user)
-        expect(connection).to have_received(:post)
-      end
-    end
-
-    context 'without well-formed user object' do
-      let(:user) { { :name => 'Anakin Skywalker', :is_jedi_master => false } }
-
-      it 'raises an InvalidUserError' do
-        expect { subject.run(user) }.to raise_error(Hyper::AuthenticationService::InvalidUserError)
-      end
-    end
-  end
-
-  describe '#user' do
-    it { is_expected.to respond_to(:user) }
-
-    context 'when user has not made request yet' do
-      it 'returns an empty hash' do
-        expect(subject.user).to eq({})
-      end
-    end
-
-    context 'when run with well-formed user object' do
-      before do
-        subject.run(user)
-      end
-
       context 'when successful' do
         let(:result) {
           {
@@ -76,8 +50,12 @@ RSpec.describe Hyper::AuthenticationService::Request do
             'id' => user[:id]
           }
         }
-        it 'returns a user hash' do
-          expect(subject.user).to eq(result)
+
+        it 'returns a response object' do
+          response = subject.run(user)
+          expect(connection).to have_received(:post)
+          user_response = JSON.parse(response.body)
+          expect(user_response).to eq(result)
         end
       end
 
@@ -85,25 +63,17 @@ RSpec.describe Hyper::AuthenticationService::Request do
         let(:result) { { 'error' => 'Invalid user or token' } }
         let(:status) { { status: 401, body: result.to_json } }
 
-        it 'returns an error object' do
-          expect(subject.user).to eq(result)
+        it 'raises an UnauthorizedUserError' do
+          expect { subject.run(user) }.to raise_error(Hyper::AuthenticationService::UnauthorizedUserError)
         end
       end
     end
-  end
 
-  describe '#response' do
-    it { is_expected.to respond_to(:response) }
+    context 'without well-formed user object' do
+      let(:user) { { :name => 'Anakin Skywalker', :is_jedi_master => false } }
 
-    describe 'before running' do
-      it 'is nil' do
-        expect(subject.response).to be_nil
-      end
-    end
-
-    describe 'after running' do
-      it 'is a Faraday response object' do
-        expect { subject.run(user) }.to change { subject.response }.from(nil).to(Faraday::Response)
+      it 'raises an InvalidUserObjectError' do
+        expect { subject.run(user) }.to raise_error(Hyper::AuthenticationService::InvalidUserObjectError)
       end
     end
   end
