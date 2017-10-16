@@ -4,10 +4,18 @@ require 'hyper/authentication_service/connection'
 require 'hyper/authentication_service/errors'
 require 'hyper/authentication_service/request'
 require 'hyper/authentication_service/version'
+require 'hyper/authentication_service/config'
 
 module Hyper
   module AuthenticationService
-    AUTHENTICATION_BASE = 'https://app.hyp3r.co'
-    AUTHENTICATION_PATH = '/api/v1/authentications/verify'
+    class << self
+      def new(block = nil)
+        if block_given?
+          Request.new(&block)
+        else
+          Request.new
+        end
+      end
+    end
   end
 end

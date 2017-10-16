@@ -1,18 +1,10 @@
 require 'spec_helper'
 
 RSpec.describe Hyper::AuthenticationService::Request do
-  let(:user) do
-    { :id => 1, :email => 'user@example.com', :authentication_token => '1234abcd' }
-  end
-  let(:headers) do
-    { 'X-Entity-Token' => user[:authentication_token], 'X-Entity-Email' => user[:email] }
-  end
-  let(:authentication_url) do
-    [Hyper::AuthenticationService::AUTHENTICATION_BASE, Hyper::AuthenticationService::AUTHENTICATION_PATH].join
-  end
-  let(:connection) do
-    Hyper::AuthenticationService::Connection.build(Hyper::AuthenticationService::AUTHENTICATION_BASE)
-  end
+  let(:user) { { :id => 1, :email => 'user@example.com', :authentication_token => '1234abcd' } }
+  let(:headers) { { 'X-Entity-Token' => user[:authentication_token], 'X-Entity-Email' => user[:email] } }
+  let(:config) { Hyper::AuthenticationService::Config.new }
+  let(:connection) { Hyper::AuthenticationService::Connection.new(config.base) }
   let(:status) { { status: 200, body: user.to_json } }
 
   subject { described_class.new }
@@ -20,28 +12,29 @@ RSpec.describe Hyper::AuthenticationService::Request do
   before do
     allow(connection).to receive(:post).and_call_original
     allow(subject).to receive(:connection).and_return(connection)
-    stub_request(:post, authentication_url)
+    stub_request(:post, config.url)
       .to_return(status)
   end
 
   describe 'initialization' do
     context 'with a block' do
       let(:url) { 'http://example.com' }
-      let(:config_block) { Proc.new { |config| config.authentication_base = url } }
+      let(:config_block) { Proc.new { |config| config.base = url } }
 
       it 'sets the url base to the given url' do
         instance = described_class.new(&config_block)
-        expect(instance.authentication_base).to eq('http://example.com')
+        expect(instance.config.base).to eq('http://example.com')
       end
     end
 
     context 'without a block' do
       it 'sets the url base to a default value' do
         instance = described_class.new
-        expect(instance.authentication_base).to eq(Hyper::AuthenticationService::AUTHENTICATION_BASE)
+        expect(instance.config.base).to eq(Hyper::AuthenticationService::Config::AUTHENTICATION_BASE)
       end
     end
   end
+
   describe '#run' do
     it { is_expected.to respond_to(:run) }
 
@@ -99,7 +92,7 @@ RSpec.describe Hyper::AuthenticationService::Request do
     end
   end
 
-  describe 'response' do
+  describe '#response' do
     it { is_expected.to respond_to(:response) }
 
     describe 'before running' do
