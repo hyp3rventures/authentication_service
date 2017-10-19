@@ -9,8 +9,8 @@ require 'hyper/authentication_service/config'
 module Hyper
   module AuthenticationService
     class << self
-      def new(block = nil)
-        if block_given?
+      def new(&block)
+        if block
           Request.new(&block)
         else
           Request.new
