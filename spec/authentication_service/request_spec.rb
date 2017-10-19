@@ -24,9 +24,10 @@ RSpec.describe Hyper::AuthenticationService::Request do
       let(:url) { 'http://example.com' }
       let(:config_block) { Proc.new { |c| c.base = url } }
 
-      it 'sets the url base to the given url' do
+      it 'sets the config base url to the given value' do
         instance = described_class.new(&config_block)
         expect(instance.send(:config).base).to eq(url)
+        expect(instance.send(:config).url).to eq("#{url}#{Hyper::AuthenticationService::Config::AUTHENTICATION_PATH}")
       end
     end
 
