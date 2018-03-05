@@ -9,9 +9,7 @@ module Hyper
 
       def run(user)
         response = connection.post(config.path, nil, headers_for(user))
-        if response.body['error']
-          raise UnauthorizedUserError, response.body['error']
-        end
+        handle_errors(response)
         response
       end
 
@@ -26,6 +24,11 @@ module Hyper
         }
       rescue KeyError => e
         raise InvalidUserObjectError, e.message
+      end
+
+      def handle_errors(response)
+        raise InternalServerError if (500..599).member?(response.status)
+        raise UnauthorizedUserError, JSON.parse(response.body)['error'] if response.body['error']
       end
     end
   end
