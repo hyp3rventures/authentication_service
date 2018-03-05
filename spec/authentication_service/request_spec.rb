@@ -65,7 +65,7 @@ RSpec.describe Hyper::AuthenticationService::Request do
         let(:status) { { status: 401, body: result.to_json } }
 
         it 'raises an UnauthorizedUserError' do
-          expect { subject.run(user) }.to raise_error(Hyper::AuthenticationService::UnauthorizedUserError)
+          expect { subject.run(user) }.to raise_error(Hyper::AuthenticationService::UnauthorizedUserError, result['error'])
         end
       end
     end
@@ -75,6 +75,14 @@ RSpec.describe Hyper::AuthenticationService::Request do
 
       it 'raises an InvalidUserObjectError' do
         expect { subject.run(user) }.to raise_error(Hyper::AuthenticationService::InvalidUserObjectError)
+      end
+    end
+
+    context 'with a 500 range response code from external authentication check' do 
+      let(:status) { { status: 504 } }
+
+      it 'raises an InternalServerError' do 
+        expect { subject.run(user) }.to raise_error(Hyper::AuthenticationService::InternalServerError)
       end
     end
   end
