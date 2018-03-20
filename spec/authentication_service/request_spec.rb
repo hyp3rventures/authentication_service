@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 RSpec.describe Hyper::AuthenticationService::Request do
   let(:user) { { :id => 1, :email => 'user@example.com', :authentication_token => '1234abcd' } }
   let(:headers) { { 'X-Entity-Token' => user[:authentication_token], 'X-Entity-Email' => user[:email] } }

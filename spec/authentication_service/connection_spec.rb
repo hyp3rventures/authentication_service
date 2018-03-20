@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 RSpec.describe Hyper::AuthenticationService::Connection do
   describe '.new' do
     let(:url) { 'https://example.com' }

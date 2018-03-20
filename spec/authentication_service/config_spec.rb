@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 RSpec.describe Hyper::AuthenticationService::Config do
   it { is_expected.to respond_to(:base, :path, :url) }
 

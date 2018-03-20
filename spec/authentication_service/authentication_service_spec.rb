@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 RSpec.describe Hyper::AuthenticationService do
   describe '.new' do
     subject { Hyper::AuthenticationService.new }
